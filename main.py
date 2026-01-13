@@ -24,10 +24,15 @@ def add_transaction(transaction_name, transaction_type, amount):
 
 def view_transactions():
     with sqlite3.connect(DB_NAME) as con:
-        cur = con.execute("SELECT * FROM transactions")
-        transactions = cur.fetchall()
-        for transaction in transactions:
-            print(transaction)
+        try:
+            cur = con.execute("SELECT * FROM transactions")
+            transactions = cur.fetchall()
+            for transaction in transactions:
+                print(transaction)
+        except sqlite3.OperationalError as e:
+            print("There is no data available. Initializing database...")
+            init_db()
+
 
 
 def main():
