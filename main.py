@@ -14,25 +14,36 @@ def init_db(db_name=DB_NAME):
 
 def add_transaction(transaction_name, transaction_type, amount):
     with sqlite3.connect(DB_NAME) as con:
-        con.execute(
-            "INSERT INTO transactions (transaction_name, transaction_type, amount) VALUES (?, ?, ?)",
-            (transaction_name, transaction_type, amount),
-        )
-        con.commit()
-        print("Transaction added successfully.")
+        try:
+            con.execute(
+                "INSERT INTO transactions (transaction_name, transaction_type, amount) VALUES (?, ?, ?)",
+                (transaction_name, transaction_type, amount),
+            )
+            con.commit()
+            print("Transaction added successfully.")
+        except sqlite3.IntegrityError as e:
+            print("Please choose a valid transaction type: 'income' or 'expense'.")
 
 
-def view_transactions():
+def view_transactions(transaction_type=None):
     with sqlite3.connect(DB_NAME) as con:
         try:
-            cur = con.execute("SELECT * FROM transactions")
+            if transaction_type in ("income", "expense"):
+                cur = con.execute(
+                    "SELECT * FROM transactions WHERE transaction_type = ?",
+                    (transaction_type,),
+                )
+            else:
+                cur = con.execute("SELECT * FROM transactions")
             transactions = cur.fetchall()
-            for transaction in transactions:
-                print(transaction)
+            if transactions:
+                for row in transactions:
+                    print(row)
+            else:
+                print("No transactions found.")
         except sqlite3.OperationalError as e:
             print("There is no data available. Initializing database...")
             init_db()
-
 
 
 def main():
@@ -54,11 +65,20 @@ def main():
                     amount = float(input("Enter amount: "))
                     add_transaction(transaction_name, transaction_type, amount)
                 case 3:
-                    view_transactions()
-                case default:
+                    transaction_type = input(
+                        "Enter transaction type (income/expense) or enter any key to view all: "
+                    )
+                    view_transactions(transaction_type)
+                case 4:
+                    print("\nExiting the program.")
                     break
+                case _:
+                    print("Please choose a valid option.")
         except ValueError:
             print("Invalid input. Please enter a number corresponding to the options.")
+        except KeyboardInterrupt:
+            print("\nExiting the program.")
+            break
 
 
 if __name__ == "__main__":
