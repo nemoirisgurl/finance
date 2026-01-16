@@ -1,7 +1,9 @@
 import sqlite3
+import re
 
 DB_NAME = "finances.db"
 SQL_FILE = "schema.sql"
+DATE_REGEX = re.compile(r"^\d{4}-\d{2}-\d{2}$")  # YYYY-MM-DD format
 
 
 def init_db(db_name=DB_NAME):
@@ -46,13 +48,42 @@ def view_transactions(transaction_type=None):
             init_db()
 
 
+def calc_balance(start_date=None, end_date=None):
+    with sqlite3.connect(DB_NAME) as con:
+        try:
+            if start_date and end_date:
+                cur = con.execute(
+                    "SELECT SUM(CASE WHEN transaction_type = 'income' THEN amount ELSE 0 END), SUM(CASE WHEN transaction_type = 'expense' THEN amount ELSE 0 END) FROM transactions WHERE transaction_date BETWEEN ? AND ?",
+                    (start_date, end_date),
+                )
+            else:
+                cur = con.execute(
+                    "SELECT SUM(CASE WHEN transaction_type = 'income' THEN amount ELSE 0 END), SUM(CASE WHEN transaction_type = 'expense' THEN amount ELSE 0 END) FROM transactions"
+                )
+                result = cur.fetchone()
+                total_income = result[0]
+                total_expense = result[1]
+                balance = total_income - total_expense
+                print("\n--------Balance--------")
+                if start_date:
+                    print(f"From: {start_date} To: {end_date}")
+                print(f"Total Income: {total_income or 0}")
+                print(f"Total Expense: {total_expense or 0}")
+                print(f"Balance: {balance}")
+
+        except sqlite3.OperationalError as e:
+            print("There is no data available. Initializing database...")
+            init_db()
+
+
 def main():
     while True:
         print("\n--------Finance Manager--------")
         print("1. Initialize Database")
         print("2. Add Transaction")
         print("3. View Transactions")
-        print("4. Exit")
+        print("4. Calculate Balance")
+        print("5. Exit")
         try:
             match int(input("Choose an option: ")):
                 case 1:
@@ -70,6 +101,18 @@ def main():
                     )
                     view_transactions(transaction_type)
                 case 4:
+                    start_date = input(
+                        "Enter start date (YYYY-MM-DD) or press enter to skip: "
+                    )
+                    end_date = input(
+                        "Enter end date (YYYY-MM-DD) or press enter to skip: "
+                    )
+                    calc_balance(
+                        start_date if DATE_REGEX.match(start_date) else None,
+                        end_date if DATE_REGEX.match(end_date) else None,
+                    )
+                    print(start_date, end_date)
+                case 5:
                     print("\nExiting the program.")
                     break
                 case _:
