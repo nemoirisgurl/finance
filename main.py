@@ -163,7 +163,7 @@ def main():
                         start_date if DATE_REGEX.match(start_date) else None,
                         end_date if DATE_REGEX.match(end_date) else None,
                     )
-                    print(start_date, end_date)
+                    #print(start_date, end_date)
                 case 7:
                     print("\nExiting the program.")
                     break
