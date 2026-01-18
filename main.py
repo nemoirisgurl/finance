@@ -1,7 +1,9 @@
 import sqlite3
+import re
 
 DB_NAME = "finances.db"
 SQL_FILE = "schema.sql"
+DATE_REGEX = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def init_db(db_name=DB_NAME):
@@ -12,13 +14,19 @@ def init_db(db_name=DB_NAME):
         print(f"Database '{db_name}' initialized successfully.")
 
 
-def add_transaction(transaction_name, transaction_type, amount):
+def add_transaction(transaction_name, transaction_type, amount, transaction_date):
     with sqlite3.connect(DB_NAME) as con:
         try:
-            con.execute(
-                "INSERT INTO transactions (transaction_name, transaction_type, amount) VALUES (?, ?, ?)",
-                (transaction_name, transaction_type, amount),
-            )
+            if transaction_date and DATE_REGEX.match(transaction_date):
+                con.execute(
+                    "INSERT INTO transactions (transaction_name, transaction_type, amount, transaction_date) VALUES (?, ?, ?, ?)",
+                    (transaction_name, transaction_type, amount, transaction_date),
+                )
+            else:
+                con.execute(
+                    "INSERT INTO transactions (transaction_name, transaction_type, amount) VALUES (?, ?, ?)",
+                    (transaction_name, transaction_type, amount),
+                )
             con.commit()
             print("Transaction added successfully.")
         except sqlite3.IntegrityError as e:
@@ -63,7 +71,12 @@ def main():
                         "Enter transaction type (income/expense): "
                     )
                     amount = float(input("Enter amount: "))
-                    add_transaction(transaction_name, transaction_type, amount)
+                    transaction_date = input(
+                        "Enter transaction date (YYYY-MM-DD) or leave blank for today: "
+                    )
+                    add_transaction(
+                        transaction_name, transaction_type, amount, transaction_date
+                    )
                 case 3:
                     transaction_type = input(
                         "Enter transaction type (income/expense) or enter any key to view all: "
