@@ -74,14 +74,14 @@ def calc_balance(start_date=None, end_date=None):
                     "SELECT SUM(CASE WHEN transaction_type = 'income' THEN amount ELSE 0 END), SUM(CASE WHEN transaction_type = 'expense' THEN amount ELSE 0 END) FROM transactions"
                 )
             result = cur.fetchone()
-            total_income = result[0]
-            total_expense = result[1]
+            total_income = result[0] or 0.0
+            total_expense = result[1] or 0.0
             balance = total_income - total_expense
             print("\n--------Balance--------")
             if start_date:
                 print(f"From: {start_date} To: {end_date}")
-            print(f"Total Income: {total_income or 0}")
-            print(f"Total Expense: {total_expense or 0}")
+            print(f"Total Income: {total_income}")
+            print(f"Total Expense: {total_expense}")
             print(f"Balance: {balance}")
         except sqlite3.OperationalError as e:
             print("There is no data available. Initializing database...")
