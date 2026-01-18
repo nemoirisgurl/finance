@@ -75,18 +75,18 @@ def calc_balance(start_date=None, end_date=None):
             init_db()
 
 
-def delete_transaction(transaction_name):
+def delete_transaction(transaction_id):
     with sqlite3.connect(DB_NAME) as con:
         try:
-            if transaction_name:
+            if transaction_id:
                 cur = con.execute(
-                    "DELETE FROM transactions WHERE transaction_name = ?",
-                    (transaction_name,),
+                    "DELETE FROM transactions WHERE transaction_id = ?",
+                    (transaction_id,),
                 )
                 con.commit()
-                print(f" Transaction '{transaction_name}' deleted successfully.")
+                print(f" Transaction with ID '{transaction_id}' deleted successfully.")
             else:
-                print("Please provide a valid transaction name to delete.")
+                print("Please provide a valid transaction ID to delete.")
         except sqlite3.OperationalError as e:
             print("There is no data available. Initializing database...")
             init_db()
@@ -130,8 +130,8 @@ def main():
                     )
                     view_transactions(transaction_type)
                 case 4:
-                    transaction_name = input("Enter transaction name to delete: ")
-                    delete_transaction(transaction_name)
+                    transaction_id = input("Enter transaction ID to delete: ")
+                    delete_transaction(transaction_id)
                 case 5:
                     delete_all_transactions()
                 case 6:
