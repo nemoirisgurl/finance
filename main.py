@@ -46,8 +46,14 @@ def view_transactions(transaction_type=None):
                 cur = con.execute("SELECT * FROM transactions")
             transactions = cur.fetchall()
             if transactions:
-                for row in transactions:
-                    print(row)
+                headers = [
+                    "ID",
+                    "Transaction Name",
+                    "Transaction Type",
+                    "Amount",
+                    "Transaction Date",
+                ]
+                print(tabulate.tabulate(transactions, headers, tablefmt="grid"))
             else:
                 print("No transactions found.")
         except sqlite3.OperationalError as e:
