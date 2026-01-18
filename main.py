@@ -1,5 +1,6 @@
 import sqlite3
 import re
+import tabulate
 
 
 DB_NAME = "finances.db"
