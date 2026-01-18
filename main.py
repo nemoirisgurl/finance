@@ -76,14 +76,32 @@ def calc_balance(start_date=None, end_date=None):
             init_db()
 
 
+def delete_transaction(transaction_name):
+    with sqlite3.connect(DB_NAME) as con:
+        try:
+            if transaction_name:
+                cur = con.execute(
+                    "DELETE FROM transactions WHERE transaction_name = ?",
+                    (transaction_name,),
+                )
+                con.commit()
+                print(f" Transaction '{transaction_name}' deleted successfully.")
+            else:
+                print("Please provide a valid transaction name to delete.")
+        except sqlite3.OperationalError as e:
+            print("There is no data available. Initializing database...")
+            init_db()
+
+
 def main():
     while True:
         print("\n--------Finance Manager--------")
         print("1. Initialize Database")
         print("2. Add Transaction")
         print("3. View Transactions")
-        print("4. Calculate Balance")
-        print("5. Exit")
+        print("4. Delete Transaction")
+        print("5. Calculate Balance")
+        print("6. Exit")
         try:
             match int(input("Choose an option: ")):
                 case 1:
@@ -101,6 +119,9 @@ def main():
                     )
                     view_transactions(transaction_type)
                 case 4:
+                    transaction_name = input("Enter transaction name to delete: ")
+                    delete_transaction(transaction_name)
+                case 5:
                     start_date = input(
                         "Enter start date (YYYY-MM-DD) or press enter to skip: "
                     )
@@ -112,7 +133,7 @@ def main():
                         end_date if DATE_REGEX.match(end_date) else None,
                     )
                     print(start_date, end_date)
-                case 5:
+                case 6:
                     print("\nExiting the program.")
                     break
                 case _:
