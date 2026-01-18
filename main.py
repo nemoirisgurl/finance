@@ -80,8 +80,8 @@ def delete_transaction(transaction_id):
     with sqlite3.connect(DB_NAME) as con:
         try:
             if transaction_id:
-                cur = con.execute(
-                    "DELETE FROM transactions WHERE transaction_id = ?",
+                con.execute(
+                    "DELETE FROM transactions WHERE id = ?",
                     (transaction_id,),
                 )
                 con.commit()
