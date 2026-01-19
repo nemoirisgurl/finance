@@ -116,6 +116,37 @@ def delete_all_transactions():
             init_db()
 
 
+def is_valid_date(date):
+    if not date or not DATE_REGEX.match(date):
+        return False
+    date_parts = date.split("-")
+    year, month, day = map(int, date_parts)
+    if not (1 <= month <= 12):
+        return False
+    else:
+        month_days = [
+            31,
+            29 if is_leap_year(year) else 28,
+            31,
+            30,
+            31,
+            30,
+            31,
+            31,
+            30,
+            31,
+            30,
+            31,
+        ]
+        if not (1 <= day <= month_days[month - 1]):
+            return False
+    return True
+
+
+def is_leap_year(year):
+    return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+
+
 def main():
     while True:
         print("\n--------Finance Manager--------")
@@ -140,7 +171,10 @@ def main():
                         "Enter transaction date (YYYY-MM-DD) or leave blank for today: "
                     )
                     add_transaction(
-                        transaction_name, transaction_type, amount, transaction_date
+                        transaction_name,
+                        transaction_type,
+                        amount,
+                        transaction_date if is_valid_date(transaction_date) else None,
                     )
                 case 3:
                     transaction_type = input(
@@ -160,10 +194,10 @@ def main():
                         "Enter end date (YYYY-MM-DD) or press enter to skip: "
                     )
                     calc_balance(
-                        start_date if DATE_REGEX.match(start_date) else None,
-                        end_date if DATE_REGEX.match(end_date) else None,
+                        start_date if is_valid_date(start_date) else None,
+                        end_date if is_valid_date(end_date) else None,
                     )
-                    #print(start_date, end_date)
+                    # print(start_date, end_date)
                 case 7:
                     print("\nExiting the program.")
                     break
