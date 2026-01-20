@@ -11,7 +11,8 @@ def main():
         print("4. Delete Transaction")
         print("5. Delete All Transactions")
         print("6. Calculate Balance")
-        print("7. Exit")
+        print("7. Plot Balance")
+        print("8. Exit")
         try:
             match int(input("Choose an option: ")):
                 case 1:
@@ -65,6 +66,22 @@ def main():
                     )
                     # print(start_date, end_date)
                 case 7:
+                    start_date = input(
+                        "Enter start date (YYYY-MM-DD) or press enter to skip: "
+                    )
+                    end_date = input(
+                        "Enter end date (YYYY-MM-DD) or press enter to skip: "
+                    )
+                    if (not hlp.is_valid_date(start_date) and start_date != "") or (
+                        not hlp.is_valid_date(end_date) and end_date != ""
+                    ):
+                        print("Invalid date.")
+                        continue
+                    db.plot_balance(
+                        start_date if hlp.is_valid_date(start_date) else None,
+                        end_date if hlp.is_valid_date(end_date) else None,
+                    )
+                case 8:
                     print("\nExiting the program.")
                     break
                 case _:

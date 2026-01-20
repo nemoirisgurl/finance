@@ -1,5 +1,7 @@
 import sqlite3
 import tabulate
+import matplotlib.pyplot as plt
+import pandas as pd
 from helpers.helpers import DATE_REGEX
 
 
@@ -83,6 +85,41 @@ def calc_balance(start_date=None, end_date=None):
             print(f"Total Income: {total_income}")
             print(f"Total Expense: {total_expense}")
             print(f"Balance: {balance}")
+        except sqlite3.OperationalError as e:
+            print("There is no data available. Initializing database...")
+            init_db()
+
+
+def plot_balance(start_date=None, end_date=None):
+    with sqlite3.connect(DB_PATH) as con:
+        try:
+            if start_date and end_date:
+                cur = con.execute(
+                    "SELECT transaction_date, SUM(CASE WHEN transaction_type = 'income' THEN amount ELSE -amount END) FROM transactions WHERE transaction_date BETWEEN ? AND ? GROUP BY transaction_date ORDER BY transaction_date",
+                    (start_date, end_date),
+                )
+            else:
+                cur = con.execute(
+                    "SELECT transaction_date, SUM(CASE WHEN transaction_type = 'income' THEN amount ELSE -amount END) FROM transactions GROUP BY transaction_date ORDER BY transaction_date"
+                )
+            data = cur.fetchall()
+            print(data)
+            if not data:
+                print("No data available to plot.")
+                return
+            df = pd.DataFrame(data, columns=["transaction_date", "balance"])
+            df["transaction_date"] = pd.to_datetime(df["transaction_date"])
+            df.set_index("transaction_date", inplace=True)
+            df["net_balance"] = df["balance"].cumsum()
+            plt.figure(figsize=(10, 5))
+            plt.plot(df.index, df["net_balance"], marker="o", linestyle="--")
+            plt.title("Net Balance History")
+            plt.xlabel("Date")
+            plt.ylabel("Net Balance")
+            plt.axhline(0, color="red", linestyle="--")
+            plt.grid()
+            plt.show(block=True)
+            plt.close()
         except sqlite3.OperationalError as e:
             print("There is no data available. Initializing database...")
             init_db()
