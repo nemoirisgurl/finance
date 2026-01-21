@@ -89,8 +89,8 @@ def main():
         except ValueError:
             print("Invalid input. Please enter a number corresponding to the options.")
         except KeyboardInterrupt:
-            print("\nExiting the program.")
-            break
+            print("\nReturning to main menu.")
+            continue
 
 
 if __name__ == "__main__":
