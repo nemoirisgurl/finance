@@ -2,10 +2,12 @@ import sqlite3
 import tabulate
 import matplotlib.pyplot as plt
 import pandas as pd
+import os
 
-
-DB_PATH = "database\\finances.db"
-SQL_PATH = "schema\\schema.sql"
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(CURRENT_DIR)
+DB_PATH = os.path.join(CURRENT_DIR, "finances.db")
+SQL_PATH = os.path.join(ROOT_DIR, "schema", "schema.sql")
 
 
 def init_db(DB_PATH=DB_PATH):
