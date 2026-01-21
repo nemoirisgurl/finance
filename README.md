@@ -8,3 +8,4 @@ This app allows you to manage your daily transactions directly from the terminal
 - View transactions
 - Add transactions
 - Calculate Balance
+- Plot net balance graph

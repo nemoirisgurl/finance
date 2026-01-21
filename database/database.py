@@ -2,7 +2,6 @@ import sqlite3
 import tabulate
 import matplotlib.pyplot as plt
 import pandas as pd
-from helpers.helpers import DATE_REGEX
 
 
 DB_PATH = "database\\finances.db"
@@ -20,7 +19,7 @@ def init_db(DB_PATH=DB_PATH):
 def add_transaction(transaction_name, transaction_type, amount, transaction_date):
     with sqlite3.connect(DB_PATH) as con:
         try:
-            if transaction_date and DATE_REGEX.match(transaction_date):
+            if transaction_date:
                 con.execute(
                     "INSERT INTO transactions (transaction_name, transaction_type, amount, transaction_date) VALUES (?, ?, ?, ?)",
                     (transaction_name, transaction_type, amount, transaction_date),
