@@ -2,6 +2,7 @@ import sqlite3
 import tabulate
 import matplotlib.pyplot as plt
 import pandas as pd
+from datetime import date
 import os
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -33,6 +34,27 @@ def add_transaction(transaction_name, transaction_type, amount, transaction_date
                 )
             con.commit()
             print("Transaction added successfully.")
+        except sqlite3.IntegrityError as e:
+            print("Please choose a valid transaction type: 'income' or 'expense'.")
+
+
+def update_transactions(
+    transaction_id, transaction_name, transaction_type, amount, transaction_date
+):
+    with sqlite3.connect(DB_PATH) as con:
+        try:
+            con.execute(
+                "UPDATE transactions SET transaction_name = ?, transaction_type = ?, amount = ?, transaction_date = ? WHERE id = ?",
+                (
+                    transaction_name,
+                    transaction_type,
+                    amount,
+                    transaction_date if transaction_date != "" else date.today().strftime("%Y-%m-%d"),
+                    transaction_id,
+                ),
+            )
+            con.commit()
+            print("Transaction updated successfully.")
         except sqlite3.IntegrityError as e:
             print("Please choose a valid transaction type: 'income' or 'expense'.")
 
