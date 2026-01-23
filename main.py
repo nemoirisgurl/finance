@@ -44,7 +44,7 @@ def main():
                     )
                     db.view_transactions(transaction_type)
                 case 4:
-                    transaction_id = input("Enter transaction ID to delete: ")
+                    transaction_id = int(input("Enter transaction ID to delete: "))
                     db.delete_transaction(transaction_id)
                 case 5:
                     db.delete_all_transactions()
@@ -64,7 +64,6 @@ def main():
                         start_date if hlp.is_valid_date(start_date) else None,
                         end_date if hlp.is_valid_date(end_date) else None,
                     )
-                    # print(start_date, end_date)
                 case 7:
                     start_date = input(
                         "Enter start date (YYYY-MM-DD) or press enter to skip: "

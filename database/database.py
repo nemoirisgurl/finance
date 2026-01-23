@@ -129,7 +129,9 @@ def plot_balance(start_date=None, end_date=None):
 def delete_transaction(transaction_id):
     with sqlite3.connect(DB_PATH) as con:
         try:
-            if transaction_id:
+            cur = con.execute("SELECT id FROM transactions")
+            ids = [row[0] for row in cur.fetchall()]
+            if transaction_id in ids:
                 con.execute(
                     "DELETE FROM transactions WHERE id = ?",
                     (transaction_id,),
@@ -146,6 +148,14 @@ def delete_transaction(transaction_id):
 def delete_all_transactions():
     with sqlite3.connect(DB_PATH) as con:
         try:
+            if (
+                input(
+                    "Are you sure you actually want to delete all transactions? (y/n): "
+                ).lower()
+                != "y"
+            ):
+                print("Operation cancelled.")
+                return
             con.execute("DELETE FROM transactions")
             con.commit()
             print("All transactions deleted successfully.")
