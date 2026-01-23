@@ -15,7 +15,7 @@ This app allows you to manage your daily transactions directly from the terminal
 - **Transaction Manager:** Add income and expenses with descriptions and custom dates.
 - **Data Visualization:** View a visualized table of all transactions or a filtered table by income or expense.
 - **Financial Analysis:** View your total income, total expense and net balance between custom date range.
-- **Graph Generation:** Generate visual trend lines of your net balance over time using Matplotlib.
+- **Graph Generation:** Generate visual trend lines of your net balance or predicted compound product over time using Matplotlib.
 - **Secure & Local:** All data is stored in a local SQLite database (`finances.db`), ensuring privacy.
 
 ## Prerequisites
@@ -58,17 +58,21 @@ Choose a feature to use
 
 2. **Add Transaction:** Enter details like Name, Type (Income/Expense), Amount, and Date.
 
-3. **View Transactions:** See a tabulated history of your finances.
+3. **Update Transaction:** Update transaction details via ID.
 
-4. **Delete Transaction:** Remove a specific entry by its ID (To view ID use View Transactions).
+4. **View Transactions:** See a tabulated history of your finances.
 
-5. **Delete All:** Clears the entire database.
+5. **Delete Transaction:** Remove a specific entry by its ID (To view ID use View Transactions).
 
-6. **Calculate Balance:** Shows net worth for a specific date range.
+6. **Delete All:** Clears the entire database.
 
-7. **Plot Balance:** Opens a window displaying your financial trend graph.
+7. **Calculate Balance:** Shows net worth for a specific date range.
 
-8. **Exit:** Exits the application.
+8. **Plot Balance:** Opens a window displaying your financial trend graph.
+
+9. **Exit:** Exits the application.
+
+11. **Calculate Interest** Shows a tabulated growth table and compound interest growth graph.
 
 To return to main menu, press `Ctrl+C`.
 
