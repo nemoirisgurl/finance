@@ -13,6 +13,7 @@ def main():
         print("6. Calculate Balance")
         print("7. Plot Balance")
         print("8. Exit")
+        print("11. Calculate Interest")
         try:
             match int(input("Choose an option: ")):
                 case 1:
@@ -83,6 +84,28 @@ def main():
                 case 8:
                     print("\nExiting the program.")
                     break
+                case 11:
+                    principal = float(input("Enter the principal amount: "))
+                    rate = float(input("Enter the annual interest rate (in %): "))
+                    years = int(input("Enter the number of years: "))
+                    monthly_contribution = float(
+                        input("Enter the monthly contribution amount (default is 0): ")
+                        or 0
+                    )
+                    compounds_per_year = int(
+                        input(
+                            "Enter the number of times interest is compounded per year (default is 12): "
+                        )
+                        or 1
+                    )
+                    interest_data = hlp.calc_interest(
+                        principal,
+                        rate,
+                        years,
+                        monthly_contribution,
+                        compounds_per_year,
+                    )
+                    db.plot_interest(interest_data)
                 case _:
                     print("Please choose a valid option.")
         except ValueError:

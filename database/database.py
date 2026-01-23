@@ -126,6 +126,21 @@ def plot_balance(start_date=None, end_date=None):
             init_db()
 
 
+def plot_interest(data):
+    years = [entry["year"] for entry in data]
+    principals = [entry["principal"] for entry in data]
+    print(tabulate.tabulate(data, headers="keys", tablefmt="grid"))
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(years, principals, marker="o", linestyle="--")
+    plt.title("Investment Growth Over Time")
+    plt.xlabel("Years")
+    plt.ylabel("Total Amount")
+    plt.grid()
+    plt.show(block=True)
+    plt.close()
+
+
 def delete_transaction(transaction_id):
     with sqlite3.connect(DB_PATH) as con:
         try:
