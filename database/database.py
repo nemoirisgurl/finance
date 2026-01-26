@@ -49,7 +49,11 @@ def update_transactions(
                     transaction_name,
                     transaction_type,
                     amount,
-                    transaction_date if transaction_date != "" else date.today().strftime("%Y-%m-%d"),
+                    (
+                        transaction_date
+                        if transaction_date != ""
+                        else date.today().strftime("%Y-%m-%d")
+                    ),
                     transaction_id,
                 ),
             )
@@ -81,6 +85,26 @@ def view_transactions(transaction_type=None):
                 print(tabulate.tabulate(transactions, headers, tablefmt="grid"))
             else:
                 print("No transactions found.")
+        except sqlite3.OperationalError as e:
+            print("There is no data available. Initializing database...")
+            init_db()
+
+
+def view_max_min_transactions():
+    with sqlite3.connect(DB_PATH) as con:
+        try:
+            income_cur = con.execute(
+                "SELECT MAX(amount), MIN(amount) FROM transactions WHERE transaction_type = 'income'"
+            )
+            income_result = income_cur.fetchone()
+            expense_cur = con.execute(
+                "SELECT MAX(amount), MIN(amount) FROM transactions WHERE transaction_type = 'expense'"
+            )
+            expense_result = expense_cur.fetchone()
+            print("Income:")
+            print(f"  Max: {income_result[0]}, Min: {income_result[1]}")
+            print("Expense:")
+            print(f"  Max: {expense_result[0]}, Min: {expense_result[1]}")
         except sqlite3.OperationalError as e:
             print("There is no data available. Initializing database...")
             init_db()

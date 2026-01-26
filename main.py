@@ -5,16 +5,15 @@ import helpers.helpers as hlp
 def main():
     while True:
         print("\n--------Finance Manager--------")
-        print("1. Initialize Database")
-        print("2. Add Transaction")
-        print("3. Update Transactions")
-        print("4. View Transactions")
-        print("5. Delete Transaction")
-        print("6. Delete All Transactions")
-        print("7. Calculate Balance")
-        print("8. Plot Balance")
-        print("9. Exit")
-        print("11. Calculate Interest")
+        print(
+            "1. Initialize Database 2. Add Transaction          3. Update Transactions 4.View Transactions"
+        )
+        print(
+            "5. Delete Transaction  6. Delete All Transactions  7. Calculate Balance   8. Plot Balance 9. Exit"
+        )
+        print(
+            "10. View Max/Min Transactions                      11. Calculate Interest"
+        )
         try:
             match int(input("Choose an option: ")):
                 case 1:
@@ -108,6 +107,8 @@ def main():
                 case 9:
                     print("\nExiting the program.")
                     break
+                case 10:
+                    db.view_max_min_transactions()
                 case 11:
                     principal = float(input("Enter the principal amount: "))
                     rate = float(input("Enter the annual interest rate (in %): "))
