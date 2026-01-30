@@ -36,8 +36,13 @@ class FinanceManager(QMainWindow):
         init_button.clicked.connect(self.init_db)
 
     def init_db(self):
-        db.init_db()
-        QMessageBox.information(self, "Success", "Database initialized successfully.")
+        try:
+            db.init_db()
+            QMessageBox.information(
+                self, "Success", "Database initialized successfully."
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to initialize database: {e}")
 
 
 if __name__ == "__main__":
