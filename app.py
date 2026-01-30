@@ -96,8 +96,13 @@ class FinanceManager(QMainWindow):
         add_button.clicked.connect(self.add_transaction)
 
     def init_db(self):
-        db.init_db()
-        QMessageBox.information(self, "Success", "Database initialized successfully.")
+        try:
+            db.init_db()
+            QMessageBox.information(
+                self, "Success", "Database initialized successfully."
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to initialize database: {e}")
 
     def add_transaction(self):
         self.add_form = AddTransactionForm()
