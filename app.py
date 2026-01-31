@@ -18,6 +18,7 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QComboBox,
     QDateEdit,
+    QTableWidget,
 )
 from PyQt6.QtCore import Qt
 
@@ -73,6 +74,39 @@ class AddTransactionForm(QWidget):
         QMessageBox.information(self, "Success", f"Transaction added: {name}")
 
 
+class ViewTransactionTable(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("View Transactions")
+        self.resize(600, 400)
+
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.table = QTableWidget()
+        self.layout.addWidget(self.table)
+
+        self.load_data()
+
+    def load_data(self):
+        data = hlp.get_data()
+        if not data:
+            QMessageBox.information(self, "Info", "No transactions found.")
+            return
+
+        self.table.setRowCount(len(data))
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(
+            ["ID", "Transaction Name", "Transaction Type", "Amount", "Transaction Date"]
+        )
+
+        for row_idx, row_data in enumerate(data):
+            for col_idx, item in enumerate(row_data):
+                self.table.setItem(row_idx, col_idx, QTableWidgetItem(str(item)))
+
+        self.table.resizeColumnsToContents()
+
+
 class FinanceManager(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -95,6 +129,10 @@ class FinanceManager(QMainWindow):
         self.layout.addWidget(add_button)
         add_button.clicked.connect(self.add_transaction)
 
+        view_button = QPushButton("View Transactions", self)
+        self.layout.addWidget(view_button)
+        view_button.clicked.connect(self.view_transactions)
+
     def init_db(self):
         try:
             db.init_db()
@@ -107,6 +145,10 @@ class FinanceManager(QMainWindow):
     def add_transaction(self):
         self.add_form = AddTransactionForm()
         self.add_form.show()
+
+    def view_transactions(self):
+        self.view_table = ViewTransactionTable()
+        self.view_table.show()
 
 
 if __name__ == "__main__":
