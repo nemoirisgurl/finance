@@ -34,8 +34,8 @@ class AddTransactionForm(QWidget):
 
         form_layout = QFormLayout()
 
-        self.name_input = QLineEdit()
-        form_layout.addRow("Transaction Name:", self.name_input)
+        self.transaction_name_input = QLineEdit()
+        form_layout.addRow("Transaction transaction_name:", self.transaction_name_input)
 
         self.amount_input = QLineEdit()
         form_layout.addRow("Amount:", self.amount_input)
@@ -54,13 +54,13 @@ class AddTransactionForm(QWidget):
         self.layout.addWidget(submit_button)
 
     def submit_transaction(self):
-        name = self.name_input.text()
+        transaction_name = self.transaction_name_input.text()
         amount = self.amount_input.text()
         transaction_type = self.type_input.currentText()
         date = self.date_input.date().toString("yyyy-MM-dd")
-        print(name, amount, transaction_type, date)
+        print(transaction_name, amount, transaction_type, date)
 
-        if not name or not amount:
+        if not transaction_name or not amount:
             QMessageBox.warning(self, "Error", "Please fill in all fields.")
             return
 
@@ -70,8 +70,10 @@ class AddTransactionForm(QWidget):
             QMessageBox.warning(self, "Error", "Please enter a valid amount.")
             return
 
-        db.add_transaction(name, transaction_type, amount, date)
-        QMessageBox.information(self, "Success", f"Transaction added: {name}")
+        db.add_transaction(transaction_name, transaction_type, amount, date)
+        QMessageBox.information(
+            self, "Success", f"Transaction added: {transaction_name}"
+        )
 
 
 class ViewTransactionTable(QWidget):
@@ -80,31 +82,106 @@ class ViewTransactionTable(QWidget):
         self.setWindowTitle("View Transactions")
         self.resize(600, 400)
 
+        self.is_loading = False
+        self.modified_rows = set()
+
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 
         self.table = QTableWidget()
+        self.table.itemChanged.connect(self.handle_item_changed)
         self.layout.addWidget(self.table)
+
+        button_layout = QVBoxLayout()
+
+        self.save_button = QPushButton("Save Changes")
+        self.save_button.setEnabled(False)
+        self.save_button.clicked.connect(self.save_changes)
+        button_layout.addWidget(self.save_button)
+
+        self.discard_button = QPushButton("Discard Changes")
+        self.discard_button.setEnabled(False)
+        self.discard_button.clicked.connect(self.load_data)
+        button_layout.addWidget(self.discard_button)
+
+        self.exit_button = QPushButton("Exit")
+        self.exit_button.clicked.connect(self.close)
+        button_layout.addWidget(self.exit_button)
+
+        self.layout.addLayout(button_layout)
 
         self.load_data()
 
     def load_data(self):
+        self.is_loading = True
+        self.modified_rows.clear()
+
         data = hlp.get_data()
+        self.table.setRowCount(0)
+
         if not data:
             QMessageBox.information(self, "Info", "No transactions found.")
+            self.is_loading = False
             return
 
         self.table.setRowCount(len(data))
         self.table.setColumnCount(5)
         self.table.setHorizontalHeaderLabels(
-            ["ID", "Transaction Name", "Transaction Type", "Amount", "Transaction Date"]
+            [
+                "ID",
+                "Transaction transaction_name",
+                "Transaction Type",
+                "Amount",
+                "Transaction Date",
+            ]
         )
 
         for row_idx, row_data in enumerate(data):
             for col_idx, item in enumerate(row_data):
-                self.table.setItem(row_idx, col_idx, QTableWidgetItem(str(item)))
+                table_item = QTableWidgetItem(str(item))
+                if col_idx == 0:
+                    table_item.setFlags(
+                        Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+                    )
+                self.table.setItem(row_idx, col_idx, table_item)
 
         self.table.resizeColumnsToContents()
+        self.is_loading = False
+
+    def handle_item_changed(self, item):
+        if self.is_loading:
+            return
+
+        self.modified_rows.add(item.row())
+        self.save_button.setEnabled(True)
+        self.save_button.setText("Save Changes")
+        self.discard_button.setEnabled(True)
+
+    def save_changes(self):
+        try:
+            for row in self.modified_rows:
+                transaction_id = self.table.item(row, 0).text()
+                transaction_name = self.table.item(row, 1).text()
+                transaction_type = self.table.item(row, 2).text()
+                amount = self.table.item(row, 3).text()
+                date = self.table.item(row, 4).text()
+                if transaction_type not in ["income", "expense"]:
+                    raise ValueError(f"Row {row+1}: Type must be 'income' or 'expense'")
+                if not hlp.is_valid_date(date):
+                    raise ValueError(
+                        f"Row {row+1}: Invalid date format, should be YYYY-MM-DD"
+                    )
+                try:
+                    amount = float(amount)
+                except ValueError:
+                    raise ValueError(f"Row {row+1}: Amount must be a number")
+                db.update_transactions(
+                    transaction_id, transaction_name, transaction_type, amount, date
+                )
+            QMessageBox.information(self, "Success", "All changes saved!")
+            self.load_data()
+        except Exception as e:
+            QMessageBox.critical(self, "Save Failed", str(e))
 
 
 class FinanceManager(QMainWindow):
