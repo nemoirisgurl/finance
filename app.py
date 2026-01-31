@@ -104,6 +104,10 @@ class ViewTransactionTable(QWidget):
         self.discard_button.clicked.connect(self.load_data)
         button_layout.addWidget(self.discard_button)
 
+        self.delete_button = QPushButton("Delete Selected")
+        self.delete_button.clicked.connect(self.delete_transaction)
+        button_layout.addWidget(self.delete_button)
+
         self.exit_button = QPushButton("Exit")
         self.exit_button.clicked.connect(self.close)
         button_layout.addWidget(self.exit_button)
@@ -129,7 +133,7 @@ class ViewTransactionTable(QWidget):
         self.table.setHorizontalHeaderLabels(
             [
                 "ID",
-                "Transaction transaction_name",
+                "Transaction Name",
                 "Transaction Type",
                 "Amount",
                 "Transaction Date",
@@ -182,6 +186,25 @@ class ViewTransactionTable(QWidget):
             self.load_data()
         except Exception as e:
             QMessageBox.critical(self, "Save Failed", str(e))
+
+    def delete_transaction(self):
+        current_row = self.table.currentRow()
+        if current_row == -1:
+            QMessageBox.warning(self, "Error", "No row selected.")
+            return
+        transaction_id = self.table.item(current_row, 0).text()
+        confirm = QMessageBox.question(
+            self,
+            "Confirm Delete",
+            f"Are you sure you want to delete transaction ID {transaction_id}?",
+        )
+        if confirm == QMessageBox.StandardButton.Yes:
+            db.delete_transaction(transaction_id)
+            QMessageBox.information(
+                self, "Deleted", f"Transaction ID {transaction_id} deleted."
+            )
+            self.load_data()
+            self.modified_rows.discard(current_row)
 
 
 class FinanceManager(QMainWindow):
