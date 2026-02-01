@@ -108,6 +108,10 @@ class ViewTransactionTable(QWidget):
         self.delete_button.clicked.connect(self.delete_transaction)
         button_layout.addWidget(self.delete_button)
 
+        self.reset_button = QPushButton("Reset Database")
+        self.reset_button.clicked.connect(self.reset_db)
+        button_layout.addWidget(self.reset_button)
+
         self.exit_button = QPushButton("Exit")
         self.exit_button.clicked.connect(self.close)
         button_layout.addWidget(self.exit_button)
@@ -205,6 +209,14 @@ class ViewTransactionTable(QWidget):
             )
             self.load_data()
             self.modified_rows.discard(current_row)
+
+    def reset_db(self):
+        confirm = QMessageBox.question(
+            self, "Reset Database", "Are you sure you want to reset the database?"
+        )
+        if confirm == QMessageBox.StandardButton.Yes:
+            db.delete_all_transactions()
+            self.load_data()
 
 
 class FinanceManager(QMainWindow):

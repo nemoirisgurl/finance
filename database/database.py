@@ -204,15 +204,16 @@ def delete_transaction(transaction_id):
             init_db()
 
 
-def delete_all_transactions():
+def delete_all_transactions(choice="y"):
     with sqlite3.connect(DB_PATH) as con:
         try:
-            if (
-                input(
+            signal = (
+                choice
+                or input(
                     "Are you sure you actually want to delete all transactions? (y/n): "
                 ).lower()
-                != "y"
-            ):
+            )
+            if signal != "y":
                 print("Operation cancelled.")
                 return
             con.execute("DELETE FROM transactions")
