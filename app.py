@@ -21,6 +21,7 @@ from PyQt6.QtWidgets import (
     QTableWidget,
 )
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon
 
 
 class AddTransactionForm(QWidget):
@@ -224,6 +225,7 @@ class FinanceManager(QMainWindow):
         super().__init__()
         self.setWindowTitle("Finance Manager")
         self.resize(600, 400)
+        self.setWindowIcon(QIcon("src/logo.png"))
 
         center_widget = QWidget()
         self.setCentralWidget(center_widget)
