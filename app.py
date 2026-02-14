@@ -65,9 +65,13 @@ class AddTransactionForm(QWidget):
         if not transaction_name or not amount:
             QMessageBox.warning(self, "Error", "Please fill in all fields.")
             return
-
         try:
             amount = float(amount)
+            if amount <= 0:
+                QMessageBox.warning(
+                    self, "Error", "Please enter a valid amount greater than 0."
+                )
+                return
         except ValueError:
             QMessageBox.warning(self, "Error", "Please enter a valid amount.")
             return
