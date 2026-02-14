@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
 class AddTransactionForm(QWidget):
@@ -94,6 +95,10 @@ class ViewTransactionTable(QWidget):
         self.layout.addWidget(self.table)
 
         button_layout = QVBoxLayout()
+
+        self.plot_button = QPushButton("Plot Balance")
+        self.plot_button.clicked.connect(self.plot_balance)
+        button_layout.addWidget(self.plot_button)
 
         self.save_button = QPushButton("Save Changes")
         self.save_button.setEnabled(False)
@@ -218,6 +223,29 @@ class ViewTransactionTable(QWidget):
         if confirm == QMessageBox.StandardButton.Yes:
             db.delete_all_transactions()
             self.load_data()
+
+    def plot_balance(self):
+        self.plot_window = BalancePlotWindow()
+        self.plot_window.show()
+
+
+class BalancePlotWindow(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Balance Plot")
+        self.resize(600, 400)
+
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        fig = db.plot_balance()
+        print(fig)
+        if fig:
+            canvas = FigureCanvas(fig)
+            self.layout.addWidget(canvas)
+        else:
+            label = QLabel("No data to plot.")
+            self.layout.addWidget(label)
 
 
 class FinanceManager(QMainWindow):
