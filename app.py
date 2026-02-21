@@ -19,6 +19,8 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QDateEdit,
     QTableWidget,
+    QDoubleSpinBox,
+    QSpinBox,
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
@@ -254,6 +256,77 @@ class BalancePlotWindow(QWidget):
             self.layout.addWidget(label)
 
 
+class InterestSetup(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Interest Calculation Setup")
+        self.resize(300, 400)
+
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.interest_form_layout = QFormLayout()
+
+        self.principal_input = QDoubleSpinBox()
+        self.principal_input.setRange(0, 1e12)
+        self.principal_input.setDecimals(2)
+        self.principal_input.setValue(1000)
+        self.interest_form_layout.addRow("Principal Amount:", self.principal_input)
+
+        self.rate_input = QDoubleSpinBox()
+        self.rate_input.setRange(0, 100)
+        self.rate_input.setDecimals(2)
+        self.rate_input.setSuffix(" %")
+        self.rate_input.setValue(0.2)
+        self.interest_form_layout.addRow("Interest Rate:", self.rate_input)
+
+        self.years_input = QSpinBox()
+        self.years_input.setRange(1, 100)
+        self.years_input.setValue(5)
+        self.interest_form_layout.addRow("Number of Years:", self.years_input)
+
+        self.monthly_contribution_input = QDoubleSpinBox()
+        self.monthly_contribution_input.setRange(0, 1e12)
+        self.monthly_contribution_input.setDecimals(2)
+        self.interest_form_layout.addRow(
+            "Monthly Contribution:", self.monthly_contribution_input
+        )
+
+        self.compounds_per_year_input = QSpinBox()
+        self.compounds_per_year_input.setRange(1, 365)
+        self.interest_form_layout.addRow(
+            "Compounds Per Year:", self.compounds_per_year_input
+        )
+
+        self.layout.addLayout(self.interest_form_layout)
+        self.calculate_button = QPushButton("Calculate and Plot")
+        self.calculate_button.clicked.connect(self.calculate_interest)
+        self.layout.addWidget(self.calculate_button)
+        self.current_fig = None
+
+    def calculate_interest(self):
+        if self.current_fig is not None:
+            self.layout.removeWidget(self.current_fig)
+            self.current_fig.deleteLater()
+            self.current_fig = None
+        data = hlp.calc_interest(
+            self.principal_input.value(),
+            self.rate_input.value(),
+            self.years_input.value(),
+            self.monthly_contribution_input.value() or 0,
+            self.compounds_per_year_input.value(),
+        )
+        fig = db.plot_interest(data)
+        if fig:
+            canvas = FigureCanvas(fig)
+            self.layout.addWidget(canvas)
+            self.current_fig = canvas
+        else:
+            label = QLabel("No data to plot.")
+            self.layout.addWidget(label)
+            self.current_fig = label
+
+
 class FinanceManager(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -281,6 +354,10 @@ class FinanceManager(QMainWindow):
         self.layout.addWidget(view_button)
         view_button.clicked.connect(self.view_transactions)
 
+        plot_interest_button = QPushButton("Plot Interest", self)
+        self.layout.addWidget(plot_interest_button)
+        plot_interest_button.clicked.connect(self.plot_interest)
+
     def init_db(self):
         try:
             db.init_db()
@@ -297,6 +374,10 @@ class FinanceManager(QMainWindow):
     def view_transactions(self):
         self.view_table = ViewTransactionTable()
         self.view_table.show()
+
+    def plot_interest(self):
+        self.interest_ui = InterestSetup()
+        self.interest_ui.show()
 
 
 if __name__ == "__main__":

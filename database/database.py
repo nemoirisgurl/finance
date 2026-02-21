@@ -176,14 +176,13 @@ def plot_interest(data):
     principals = [entry["principal"] for entry in data]
     print(tabulate.tabulate(data, headers="keys", tablefmt="grid"))
 
-    plt.figure(figsize=(10, 5))
-    plt.plot(years, principals, marker="o", linestyle="--")
-    plt.title("Investment Growth Over Time")
-    plt.xlabel("Years")
-    plt.ylabel("Total Amount")
-    plt.grid()
-    plt.show(block=True)
-    plt.close()
+    f, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(years, principals, marker="o", linestyle="--")
+    ax.set_title("Investment Growth Over Time")
+    ax.set_xlabel("Years")
+    ax.set_ylabel("Total Amount")
+    ax.grid()
+    return f
 
 
 def delete_transaction(transaction_id):
