@@ -25,6 +25,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from PyQt6.QtCore import Qt, QDate
 
 
 class AddTransactionForm(QWidget):
@@ -38,10 +39,13 @@ class AddTransactionForm(QWidget):
 
         form_layout = QFormLayout()
 
-        self.transaction_name_input = QLineEdit()
-        form_layout.addRow("Transaction transaction_name:", self.transaction_name_input)
+        self.name_input = QLineEdit()
+        self.name_input.setPlaceholderText("Transaction Name")
+        form_layout.addRow("Transaction Name:", self.name_input)
 
-        self.amount_input = QLineEdit()
+        self.amount_input = QDoubleSpinBox()
+        self.amount_input.setRange(0, float("inf"))
+        self.amount_input.setDecimals(2)
         form_layout.addRow("Amount:", self.amount_input)
 
         self.type_input = QComboBox()
@@ -50,6 +54,7 @@ class AddTransactionForm(QWidget):
 
         self.date_input = QDateEdit()
         self.date_input.setCalendarPopup(True)
+        self.date_input.setDate(QDate.currentDate())
         form_layout.addRow("Transaction Date:", self.date_input)
 
         submit_button = QPushButton("Add Transaction")
@@ -58,29 +63,19 @@ class AddTransactionForm(QWidget):
         self.layout.addWidget(submit_button)
 
     def submit_transaction(self):
-        transaction_name = self.transaction_name_input.text()
-        amount = self.amount_input.text()
+        name = self.name_input.text()
+        amount = self.amount_input.value()
         transaction_type = self.type_input.currentText()
         date = self.date_input.date().toString("yyyy-MM-dd")
-        print(transaction_name, amount, transaction_type, date)
+        print(name, amount, transaction_type, date)
 
-        if not transaction_name or not amount:
+        if not name or not amount:
             QMessageBox.warning(self, "Error", "Please fill in all fields.")
             return
-        try:
-            amount = float(amount)
-            if amount <= 0:
-                QMessageBox.warning(
-                    self, "Error", "Please enter a valid amount greater than 0."
-                )
-                return
-        except ValueError:
-            QMessageBox.warning(self, "Error", "Please enter a valid amount.")
-            return
 
-        db.add_transaction(transaction_name, transaction_type, amount, date)
+        db.add_transaction(name, transaction_type, amount, date)
         QMessageBox.information(
-            self, "Success", f"Transaction added: {transaction_name}"
+            self, "Success", f"Transaction added: {name}"
         )
 
 
