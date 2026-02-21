@@ -134,6 +134,9 @@ class ViewTransactionTable(QWidget):
         self.is_loading = True
         self.modified_rows.clear()
 
+        self.save_button.setEnabled(False)
+        self.discard_button.setEnabled(False)
+
         data = hlp.get_data()
         self.table.setRowCount(0)
 
@@ -189,10 +192,9 @@ class ViewTransactionTable(QWidget):
                     raise ValueError(
                         f"Row {row+1}: Invalid date format, should be YYYY-MM-DD"
                     )
-                try:
-                    amount = float(amount)
-                except ValueError:
-                    raise ValueError(f"Row {row+1}: Amount must be a number")
+                amount = float(amount)
+                if amount < 0:
+                    raise ValueError(f"Row {row+1}: Amount must be a positive number")
                 db.update_transactions(
                     transaction_id, transaction_name, transaction_type, amount, date
                 )
