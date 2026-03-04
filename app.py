@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
+    QHBoxLayout,
     QWidget,
     QMessageBox,
     QPushButton,
@@ -21,6 +22,7 @@ from PyQt6.QtWidgets import (
     QTableWidget,
     QDoubleSpinBox,
     QSpinBox,
+    QGroupBox,
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
@@ -35,9 +37,15 @@ class AddTransactionForm(QWidget):
         self.resize(300, 200)
 
         self.layout = QVBoxLayout()
+        self.layout.setContentsMargins(24, 24, 24, 24)
+        self.layout.setSpacing(18)
         self.setLayout(self.layout)
 
         form_layout = QFormLayout()
+        form_layout.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+        form_layout.setFormAlignment(Qt.AlignmentFlag.AlignTop)
+        form_layout.setHorizontalSpacing(16)
+        form_layout.setVerticalSpacing(10)
 
         self.name_input = QLineEdit()
         self.name_input.setPlaceholderText("Transaction Name")
@@ -57,10 +65,15 @@ class AddTransactionForm(QWidget):
         self.date_input.setDate(QDate.currentDate())
         form_layout.addRow("Transaction Date:", self.date_input)
 
-        submit_button = QPushButton("Add Transaction")
-        submit_button.clicked.connect(self.submit_transaction)
         self.layout.addLayout(form_layout)
-        self.layout.addWidget(submit_button)
+
+        button_row = QHBoxLayout()
+        button_row.addStretch()
+        submit_button = QPushButton("Add Transaction")
+        submit_button.setObjectName("PrimaryButton")
+        submit_button.clicked.connect(self.submit_transaction)
+        button_row.addWidget(submit_button)
+        self.layout.addLayout(button_row)
 
     def submit_transaction(self):
         name = self.name_input.text()
@@ -89,19 +102,23 @@ class ViewTransactionTable(QWidget):
         self.modified_rows = set()
 
         self.layout = QVBoxLayout()
+        self.layout.setContentsMargins(16, 16, 16, 16)
+        self.layout.setSpacing(12)
         self.setLayout(self.layout)
 
         self.table = QTableWidget()
         self.table.itemChanged.connect(self.handle_item_changed)
         self.layout.addWidget(self.table)
 
-        button_layout = QVBoxLayout()
+        button_layout = QHBoxLayout()
+        button_layout.setSpacing(8)
 
         self.plot_button = QPushButton("Plot Balance")
         self.plot_button.clicked.connect(self.plot_balance)
         button_layout.addWidget(self.plot_button)
 
         self.save_button = QPushButton("Save Changes")
+        self.save_button.setObjectName("PrimaryButton")
         self.save_button.setEnabled(False)
         self.save_button.clicked.connect(self.save_changes)
         button_layout.addWidget(self.save_button)
@@ -112,16 +129,20 @@ class ViewTransactionTable(QWidget):
         button_layout.addWidget(self.discard_button)
 
         self.delete_button = QPushButton("Delete Selected")
+        self.delete_button.setObjectName("DangerButton")
         self.delete_button.clicked.connect(self.delete_transaction)
         button_layout.addWidget(self.delete_button)
 
         self.reset_button = QPushButton("Reset Database")
+        self.reset_button.setObjectName("DangerButton")
         self.reset_button.clicked.connect(self.reset_db)
         button_layout.addWidget(self.reset_button)
 
         self.exit_button = QPushButton("Exit")
         self.exit_button.clicked.connect(self.close)
         button_layout.addWidget(self.exit_button)
+
+        button_layout.addStretch()
 
         self.layout.addLayout(button_layout)
 
@@ -258,9 +279,15 @@ class InterestSetup(QWidget):
         self.resize(300, 400)
 
         self.layout = QVBoxLayout()
+        self.layout.setContentsMargins(24, 24, 24, 24)
+        self.layout.setSpacing(18)
         self.setLayout(self.layout)
 
         self.interest_form_layout = QFormLayout()
+        self.interest_form_layout.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+        self.interest_form_layout.setFormAlignment(Qt.AlignmentFlag.AlignTop)
+        self.interest_form_layout.setHorizontalSpacing(16)
+        self.interest_form_layout.setVerticalSpacing(10)
 
         self.principal_input = QDoubleSpinBox()
         self.principal_input.setRange(0, 1e12)
@@ -293,10 +320,17 @@ class InterestSetup(QWidget):
             "Compounds Per Year:", self.compounds_per_year_input
         )
 
-        self.layout.addLayout(self.interest_form_layout)
+        group_box = QGroupBox("Interest Parameters")
+        group_box.setLayout(self.interest_form_layout)
+        self.layout.addWidget(group_box)
+
         self.calculate_button = QPushButton("Calculate and Plot")
+        self.calculate_button.setObjectName("PrimaryButton")
         self.calculate_button.clicked.connect(self.calculate_interest)
-        self.layout.addWidget(self.calculate_button)
+        button_row = QHBoxLayout()
+        button_row.addStretch()
+        button_row.addWidget(self.calculate_button)
+        self.layout.addLayout(button_row)
         self.current_fig = None
 
     def calculate_interest(self):
@@ -326,31 +360,63 @@ class FinanceManager(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Finance Manager")
-        self.resize(600, 400)
+        self.resize(720, 480)
         self.setWindowIcon(QIcon("src/logo.png"))
 
         center_widget = QWidget()
         self.setCentralWidget(center_widget)
 
         self.layout = QVBoxLayout()
+        self.layout.setContentsMargins(32, 32, 32, 32)
+        self.layout.setSpacing(16)
         center_widget.setLayout(self.layout)
 
         title = QLabel("Finance Manager")
+        title.setObjectName("AppTitleLabel")
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(title)
+
+        subtitle = QLabel("Manage transactions, visualize balances, and project interest.")
+        subtitle.setObjectName("AppSubtitleLabel")
+        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.layout.addWidget(subtitle)
+
+        button_group = QGroupBox("Quick Actions")
+        button_group_layout = QVBoxLayout()
+        button_group_layout.setSpacing(10)
+        button_group.setLayout(button_group_layout)
+        self.layout.addWidget(button_group)
         init_button = QPushButton("Initialize Database", self)
-        self.layout.addWidget(init_button)
+        init_button.setObjectName("PrimaryButton")
+        init_button.setMinimumHeight(40)
+        init_button.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+        )
+        button_group_layout.addWidget(init_button)
         init_button.clicked.connect(self.init_db)
 
         add_button = QPushButton("Add Transaction", self)
-        self.layout.addWidget(add_button)
+        add_button.setMinimumHeight(40)
+        add_button.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+        )
+        button_group_layout.addWidget(add_button)
         add_button.clicked.connect(self.add_transaction)
 
         view_button = QPushButton("View Transactions", self)
-        self.layout.addWidget(view_button)
+        view_button.setMinimumHeight(40)
+        view_button.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+        )
+        button_group_layout.addWidget(view_button)
         view_button.clicked.connect(self.view_transactions)
 
         plot_interest_button = QPushButton("Plot Interest", self)
-        self.layout.addWidget(plot_interest_button)
+        plot_interest_button.setMinimumHeight(40)
+        plot_interest_button.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+        )
+        button_group_layout.addWidget(plot_interest_button)
         plot_interest_button.clicked.connect(self.plot_interest)
 
     def init_db(self):
@@ -377,6 +443,112 @@ class FinanceManager(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setStyleSheet(
+        """
+        QWidget {
+            font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont;
+            font-size: 10pt;
+        }
+
+        QMainWindow {
+            background-color: #0f172a;
+        }
+
+        QLabel#AppTitleLabel {
+            font-size: 22pt;
+            font-weight: 600;
+            color: #e5e7eb;
+            margin-bottom: 4px;
+        }
+
+        QLabel#AppSubtitleLabel {
+            font-size: 10pt;
+            color: #9ca3af;
+        }
+
+        QGroupBox {
+            border: 1px solid #1f2937;
+            border-radius: 6px;
+            margin-top: 12px;
+            padding-top: 16px;
+            background-color: #020617;
+        }
+
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 12px;
+            padding: 0 4px;
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        QPushButton {
+            background-color: #1f2937;
+            color: #e5e7eb;
+            border-radius: 6px;
+            padding: 8px 14px;
+        }
+
+        QPushButton:hover {
+            background-color: #374151;
+        }
+
+        QPushButton#PrimaryButton {
+            background-color: #2563eb;
+            color: #f9fafb;
+        }
+
+        QPushButton#PrimaryButton:hover {
+            background-color: #1d4ed8;
+        }
+
+        QPushButton#DangerButton {
+            background-color: #b91c1c;
+            color: #fef2f2;
+        }
+
+        QPushButton#DangerButton:hover {
+            background-color: #991b1b;
+        }
+
+        QTableWidget {
+            gridline-color: #1f2937;
+            background-color: #020617;
+            color: #e5e7eb;
+            alternate-background-color: #020617;
+            selection-background-color: #1d4ed8;
+            selection-color: #f9fafb;
+        }
+
+        QHeaderView::section {
+            background-color: #111827;
+            color: #e5e7eb;
+            padding: 4px;
+            border: none;
+            border-right: 1px solid #1f2937;
+        }
+
+        QLineEdit,
+        QDateEdit,
+        QComboBox,
+        QDoubleSpinBox,
+        QSpinBox {
+            background-color: #020617;
+            color: #e5e7eb;
+            border-radius: 4px;
+            border: 1px solid #1f2937;
+            padding: 4px 6px;
+        }
+
+        QLineEdit:focus,
+        QDateEdit:focus,
+        QComboBox:focus,
+        QDoubleSpinBox:focus,
+        QSpinBox:focus {
+            border: 1px solid #2563eb;
+        }
+        """
+    )
     window = FinanceManager()
     window.show()
     sys.exit(app.exec())
